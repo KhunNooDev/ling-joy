@@ -1,70 +1,169 @@
-import Image from 'next/image'
+'use client'
+import { toast } from 'sonner'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { Button } from '@/components/ui/button'
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
+const formSchema = z.object({
+  vocabulary: z.string().min(1, {
+    message: 'Vocabulary is required.',
+  }),
+  pronunciation: z.string().min(1, {
+    message: 'Pronunciation is required.',
+  }),
+  translation: z.string().min(1, {
+    message: 'Translation is required.',
+  }),
+  exampleSentence: z.string().min(1, {
+    message: 'Example sentence is required.',
+  }),
+  translationOfExampleSentence: z.string().min(1, {
+    message: 'Translation of example sentence is required.',
+  }),
+})
 
 export default function Home() {
-  return (
-    <div className='grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20'>
-      <main className='row-start-2 flex flex-col items-center gap-8 sm:items-start'>
-        <Image className='dark:invert' src='/next.svg' alt='Next.js logo' width={180} height={38} priority />
-        <ol className='list-inside list-decimal text-center font-[family-name:var(--font-geist-mono)] text-sm sm:text-left'>
-          <li className='mb-2'>
-            Get started by editing{' '}
-            <code className='rounded bg-black/[.05] px-1 py-0.5 font-semibold dark:bg-white/[.06]'>
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  // 1. Define your form.
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      vocabulary: '',
+      pronunciation: '',
+      translation: '',
+      exampleSentence: '',
+      translationOfExampleSentence: '',
+    },
+  })
 
-        <div className='flex flex-col items-center gap-4 sm:flex-row'>
-          <a
-            className='flex h-10 items-center justify-center gap-2 rounded-full border border-solid border-transparent bg-foreground px-4 text-sm text-background transition-colors hover:bg-[#383838] sm:h-12 sm:px-5 sm:text-base dark:hover:bg-[#ccc]'
-            href='https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            <Image className='dark:invert' src='/vercel.svg' alt='Vercel logomark' width={20} height={20} />
-            Deploy now
-          </a>
-          <a
-            className='flex h-10 items-center justify-center rounded-full border border-solid border-black/[.08] px-4 text-sm transition-colors hover:border-transparent hover:bg-[#f2f2f2] sm:h-12 sm:min-w-44 sm:px-5 sm:text-base dark:border-white/[.145] dark:hover:bg-[#1a1a1a]'
-            href='https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className='row-start-3 flex flex-wrap items-center justify-center gap-6'>
-        <a
-          className='flex items-center gap-2 hover:underline hover:underline-offset-4'
-          href='https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          <Image aria-hidden src='/file.svg' alt='File icon' width={16} height={16} />
-          Learn
-        </a>
-        <a
-          className='flex items-center gap-2 hover:underline hover:underline-offset-4'
-          href='https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          <Image aria-hidden src='/window.svg' alt='Window icon' width={16} height={16} />
-          Examples
-        </a>
-        <a
-          className='flex items-center gap-2 hover:underline hover:underline-offset-4'
-          href='https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          <Image aria-hidden src='/globe.svg' alt='Globe icon' width={16} height={16} />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  // 2. Define a submit handler.
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    // Do something with the form values.
+    // ✅ This will be type-safe and validated.
+    console.log(values)
+  }
+
+  const handleClick = () => {
+    toast('Button clicked!')
+  }
+
+  return (
+    <main>
+      <section>
+        <h1>Welcome to My Page</h1>
+        <Button onClick={handleClick}>Click to show toast</Button>
+      </section>
+      <section className='mx-auto max-w-md'>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+            <FormField
+              control={form.control}
+              name='vocabulary'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Vocabulary</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Enter vocabulary' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='pronunciation'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Pronunciation</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Enter pronunciation' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='translation'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Translation</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Enter translation' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='exampleSentence'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Example Sentence</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Enter example sentence' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='translationOfExampleSentence'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Translation of Example Sentence</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Enter translation of example sentence' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type='submit'>Submit</Button>
+          </form>
+        </Form>
+      </section>
+      <section>
+        <Carousel className='mx-auto w-full max-w-md'>
+          <CarouselContent className='-ml-1'>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <CarouselItem key={index} className='pl-1 md:basis-1/2 lg:basis-1/3'>
+                <div className='p-1'>
+                  <Card>
+                    <CardContent className='flex aspect-square items-center justify-center p-6'>
+                      <span className='text-2xl font-semibold'>{index + 1}</span>
+                    </CardContent>
+                    <CardFooter className='justify-between'>
+                      <div></div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant='destructive' onClick={() => {}}>
+                              Delete
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <span>Delete this item</span>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </CardFooter>
+                  </Card>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
+      </section>
+    </main>
   )
 }
