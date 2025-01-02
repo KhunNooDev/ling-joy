@@ -7,7 +7,7 @@ export default function HomePage() {
 
   return (
     <main>
-      <Button onClick={() => router.push('/vocabularies')}>Go to Vocabulary</Button>
+      <Button onClick={() => router.push('/vocabulary')}>Go to Vocabulary</Button>
     </main>
   )
 }
