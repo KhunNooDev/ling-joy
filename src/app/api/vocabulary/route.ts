@@ -1,28 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  createVocabulary,
-  getVocabulary,
-  updateVocabulary,
-  deleteVocabulary,
-} from '../../../db/actions/vocabulary.action'
+import { createVocabulary, getVocabularies, updateVocabulary, deleteVocabulary } from '@/db/actions/vocabulary.action'
+
+// Handle GET request (Fetch all data)
+export async function GET() {
+  try {
+    const vocab = await getVocabularies()
+    if (!vocab) {
+      return NextResponse.json(
+        {
+          success: true,
+          message: 'Not found',
+        },
+        { status: 404 },
+      )
+    }
+
+    return NextResponse.json({ success: true, data: vocab })
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json({ success: false, message: 'Internal Server Error' }, { status: 500 })
+  }
+}
 
 // Handle POST request (Create)
 export async function POST(req: NextRequest) {
-  const formData = await req.formData()
-  const result = await createVocabulary(formData)
+  const data = await req.json()
+  const result = await createVocabulary(data)
   return NextResponse.json(result)
-}
-
-// Handle GET request (Fetch by word)
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const word = searchParams.get('word')
-  if (!word) return NextResponse.json({ message: 'Word not provided' }, { status: 400 })
-
-  const vocab = await getVocabulary()
-  if (!vocab) return NextResponse.json({ message: 'Not found' }, { status: 404 })
-
-  return NextResponse.json(vocab)
 }
 
 // Handle PUT request (Update)

@@ -1,3 +1,5 @@
+import { MongoServerError } from 'mongodb'
+
 /** Convert MongoDB documents */
 export function convertMongoObjectIdToString<T>(docs: any) {
   if (Array.isArray(docs)) {
@@ -21,4 +23,14 @@ export function trimWhitespaceFromStrings(data: any) {
       data[key] = data[key].trim()
     }
   })
+}
+
+export function handleMongoError(error: unknown) {
+  if (error instanceof MongoServerError) {
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0]
+      return `${field} already exists`
+    }
+  }
+  return 'An unexpected error occurred.'
 }

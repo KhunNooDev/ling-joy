@@ -1,42 +1,51 @@
 'use server'
-import VocabularyModel, { IVocabulary } from '@/db/models/vocabulary.model'
 import dbConnect from '@/lib/dbConnect'
-import { convertMongoObjectIdToString } from '@/db/utils'
+import { MongoServerError } from 'mongodb'
+import VocabularyModel, { IVocabulary } from '@/db/models/vocabulary.model'
+import { convertMongoObjectIdToString, handleMongoError } from '@/db/utils'
 
-//
-export async function getVocabulary() {
+/** Get all vocabulary */
+export async function getVocabularies() {
   await dbConnect()
-  const vocab = await VocabularyModel.find({})
-  const vocabData = convertMongoObjectIdToString<IVocabulary[]>(vocab)
-  return vocabData
+  const data = await VocabularyModel.find({})
+  const vocab = convertMongoObjectIdToString<IVocabulary[]>(data)
+  return vocab
 }
 
-//
+/** Get vocabulary by id */
 export async function getVocabularyById(id: string) {
   await dbConnect()
-  const vocab = await VocabularyModel.findById(id)
-  const vocabData = convertMongoObjectIdToString<IVocabulary>(vocab)
-  return vocabData
+  const data = await VocabularyModel.findById(id)
+  const vocab = convertMongoObjectIdToString<IVocabulary>(data)
+  return vocab
 }
 
-// Create Vocabulary Entry
-export async function createVocabulary(vocabularyData: Partial<IVocabulary>) {
+/** Create Vocabulary */
+export async function createVocabulary(createData: Partial<IVocabulary>) {
   await dbConnect()
-  const vocab = new VocabularyModel(vocabularyData)
-  const data = await vocab.save()
-  const vocabData = convertMongoObjectIdToString<IVocabulary>(data)
-  return vocabData
+  try {
+    const vocab = new VocabularyModel(createData)
+    const data = await vocab.save()
+    const createdData = convertMongoObjectIdToString<IVocabulary>(data)
+    return createdData
+  } catch (error) {
+    throw new Error(handleMongoError(error))
+  }
 }
 
-// Update Vocabulary by ID
+/** Update Vocabulary by id */
 export async function updateVocabulary(id: string, updateData: Partial<IVocabulary>) {
   await dbConnect()
-  const updated = await VocabularyModel.findByIdAndUpdate(id, updateData, { new: true })
-  const updatedData = convertMongoObjectIdToString<IVocabulary>(updated)
-  return updatedData
+  try {
+    const data = await VocabularyModel.findByIdAndUpdate(id, updateData, { new: true })
+    const updatedData = convertMongoObjectIdToString<IVocabulary>(data)
+    return updatedData
+  } catch (error) {
+    throw new Error(handleMongoError(error))
+  }
 }
 
-// Delete Vocabulary by ID
+/** Delete Vocabulary by id */
 export async function deleteVocabulary(id: string) {
   await dbConnect()
   await VocabularyModel.findByIdAndDelete(id)
