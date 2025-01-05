@@ -1,4 +1,6 @@
 import { MongoServerError } from 'mongodb'
+import { z } from 'zod'
+import mongoose, { Schema } from 'mongoose'
 
 /** Convert MongoDB documents */
 export function convertMongoObjectIdToString<T>(docs: any) {
@@ -16,13 +18,22 @@ export function convertMongoObjectIdToString<T>(docs: any) {
   } as T
 }
 
+/** Get required fields from the Mongoose schema */
+export function getRequiredFields(model: any, data: any) {
+  const requiredFields = Object.keys(model.schema.paths).filter((key) => model.schema.paths[key].isRequired)
+
+  // Check for missing required fields dynamically
+  return requiredFields.filter((field) => !data[field])
+}
+
 /** Trims whitespace from string */
-export function trimWhitespaceFromStrings(data: any) {
+export function trimString(data: any) {
   Object.keys(data).forEach((key) => {
     if (typeof data[key] === 'string') {
       data[key] = data[key].trim()
     }
   })
+  return data
 }
 
 export function handleMongoError(error: unknown) {

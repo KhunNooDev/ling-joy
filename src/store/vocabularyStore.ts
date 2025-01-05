@@ -1,6 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { deleteVocabulary, getVocabularies, getVocabularyById } from '@/db/actions/vocabulary.action'
+import {
+  createVocabulary,
+  deleteVocabulary,
+  getVocabularies,
+  getVocabularyById,
+  updateVocabulary,
+} from '@/db/actions/vocabulary.action'
 import { IVocabulary } from '@/db/models/vocabulary.model'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -38,14 +44,16 @@ export const defaultValues = {
 interface VocabularyState {
   vocabularies: IVocabulary[]
   isLoading: boolean
-  upsertVocabulary: (data: IVocabulary, isCreate: boolean, pkId?: string) => void
   fetchVocabularies: () => Promise<void>
+  updateVocabulary: (data: z.infer<typeof formSchema>) => Promise<void>
   deleteVocabulary: (id: string) => Promise<void>
+
   isDialogOpen: boolean
-  // editingVocabulary: z.infer<typeof formSchema>
+  pkId?: string
+  isEdit: boolean
+  entityVocabulary: z.infer<typeof formSchema>
   setIsDialogOpen: (isOpen: boolean) => void
-  openDialog: (isEdit: boolean, pkId?: string) => Promise<void>
-  // closeDialog: () => void
+  openDialog: (isEdit?: boolean, pkId?: string) => Promise<void>
 }
 
 export const useVocabularyStore = create<VocabularyState>()(
@@ -53,15 +61,8 @@ export const useVocabularyStore = create<VocabularyState>()(
     (set, get) => ({
       vocabularies: [],
       isLoading: true,
-      upsertVocabulary: (data, isCreate, pkId) => {
-        set((state) => ({
-          vocabularies: isCreate
-            ? [...state.vocabularies, data]
-            : state.vocabularies.map((vocab) => (vocab._id === pkId ? data : vocab)),
-        }))
-      },
       fetchVocabularies: async () => {
-        set({ isLoading: true })
+        set({ isLoading: true, isDialogOpen: false })
         try {
           const data = await getVocabularies()
           set({ vocabularies: data })
@@ -69,6 +70,26 @@ export const useVocabularyStore = create<VocabularyState>()(
           console.error('Error fetching vocabularies:', error)
         } finally {
           set({ isLoading: false })
+        }
+      },
+      updateVocabulary: async (values) => {
+        const { isEdit, pkId } = get()
+        try {
+          const newVocabulary = isEdit ? await updateVocabulary(pkId!, values) : await createVocabulary(values)
+
+          toast.success(isEdit ? 'Vocabulary updated!' : 'Vocabulary created!')
+          set((state) => ({
+            isDialogOpen: false,
+            vocabularies: isEdit
+              ? state.vocabularies.map((vocab) => (vocab._id === pkId ? newVocabulary : vocab))
+              : [...state.vocabularies, newVocabulary],
+          }))
+        } catch (error) {
+          if (error instanceof Error) {
+            toast.error(`Failed to update vocabulary: ${error.message}`)
+          } else {
+            toast.error('Failed to update vocabulary.')
+          }
         }
       },
       deleteVocabulary: async (id) => {
@@ -84,33 +105,25 @@ export const useVocabularyStore = create<VocabularyState>()(
         }
       },
       isDialogOpen: false,
-      // editingVocabulary: defaultValues,
       setIsDialogOpen: (isOpen) => {
         set((state) => ({
           isDialogOpen: isOpen,
         }))
       },
+      isEdit: false,
+      entityVocabulary: defaultValues,
       openDialog: async (isEdit, pkId) => {
-        set({ isDialogOpen: true })
-        // if (isEdit && pkId) {
-        //   try {
-        //     const data = await getVocabularyById(pkId)
-        //     const validatedData = formSchema.parse(data)
-        //     set({ editingVocabulary: validatedData })
-        //   } catch (error) {
-        //     console.error('Failed to fetch vocabulary:', error)
-        //     set({ editingVocabulary: formSchema.parse(defaultValues) })
-        //   }
-        // } else {
-        //   set({ editingVocabulary: formSchema.parse(defaultValues) })
-        // }
+        let entityVocabulary = defaultValues
+        if (isEdit && pkId) {
+          entityVocabulary = await getVocabularyById(pkId)
+        }
+        set((state) => ({
+          isDialogOpen: true,
+          isEdit,
+          pkId,
+          entityVocabulary,
+        }))
       },
-
-      // closeDialog: () =>
-      //   set({
-      //     isDialogOpen: false,
-      //     // editingVocabulary: formSchema.parse(defaultValues)
-      //   }),
     }),
     {
       name: 'vocabulary-storage', // Persist with localStorage

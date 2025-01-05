@@ -3,10 +3,10 @@ import { useEffect } from 'react'
 import { PencilIcon, Trash2Icon } from 'lucide-react'
 import { useVocabularyStore } from '@/store/vocabularyStore'
 import { AppButton } from '@/components/AppButton'
-import VocabularyButtonDialogForm from './VocabularyButtonDialogForm'
+import VocabularyDialogForm from './VocabularyDialogForm'
 
 export default function VocabularyPage() {
-  const { vocabularies, fetchVocabularies, deleteVocabulary, isLoading, openDialog } = useVocabularyStore()
+  const { vocabularies, isLoading, fetchVocabularies, deleteVocabulary, openDialog } = useVocabularyStore()
 
   useEffect(() => {
     fetchVocabularies()
@@ -14,9 +14,9 @@ export default function VocabularyPage() {
 
   return (
     <main className='p-6'>
+      <VocabularyDialogForm />
       <h1 className='mb-4 text-2xl font-bold'>Vocabulary List</h1>
-      {/* <VocabularyButtonDialogForm /> */}
-
+      <AppButton onClick={() => openDialog()}>New</AppButton>
       <div className='p-3'>
         {isLoading ? (
           <p>Loading...</p>
@@ -33,8 +33,6 @@ export default function VocabularyPage() {
                 <p className='text-sm text-gray-400'>{vocab.exampleTranslation}</p>
                 <span className='text-blue-600'>Level: {vocab.level}</span>
                 <div className='flex w-full justify-between'>
-                  <VocabularyButtonDialogForm isEdit pkId={vocab._id} />
-
                   <AppButton onClick={() => openDialog(true, vocab._id)} size='icon'>
                     <PencilIcon />
                   </AppButton>
@@ -43,6 +41,8 @@ export default function VocabularyPage() {
                     onClick={() => deleteVocabulary(vocab._id)}
                     size='icon'
                     tooltip='Delete'
+                    isConfirm
+                    alertText='Are you sure you want to delete this item?'
                   >
                     <Trash2Icon />
                   </AppButton>

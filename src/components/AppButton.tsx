@@ -18,15 +18,16 @@ import { useState } from 'react'
 interface IAppButton extends ButtonProps {
   tooltip?: string
   isConfirm?: boolean
+  alertText?: string
 }
 
-export function AppButton({ tooltip, isConfirm, children, onClick, ...props }: IAppButton) {
+export function AppButton({ tooltip, isConfirm, alertText, children, onClick, ...props }: IAppButton) {
   const [isADgShow, setIsADgShow] = useState(false)
   return (
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button //onClick={onClick}
+          <Button
             onClick={(e) => {
               isConfirm ? setIsADgShow(true) : onClick && onClick(e)
             }}
@@ -47,14 +48,16 @@ export function AppButton({ tooltip, isConfirm, children, onClick, ...props }: I
             <AlertDialogHeader>
               <AlertDialogTitle className='flex items-center gap-2'>
                 <TriangleAlertIcon color='red' />
-                Confirm delete
+                Confirm
               </AlertDialogTitle>
               <AlertDialogDescription></AlertDialogDescription>
             </AlertDialogHeader>
-            Are you sure you want to delete this item?
+            {alertText ? alertText : 'Are you sure?'}
             <AlertDialogFooter>
               <AlertDialogCancel>No</AlertDialogCancel>
-              <AlertDialogAction onClick={onClick}>Yes</AlertDialogAction>
+              <Button variant='destructive' onClick={onClick} asChild>
+                <AlertDialogAction>Yes</AlertDialogAction>
+              </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
