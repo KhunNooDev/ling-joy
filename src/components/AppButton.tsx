@@ -1,4 +1,6 @@
 'use client'
+import { useState } from 'react'
+import { TriangleAlertIcon } from 'lucide-react'
 import { Button, ButtonProps } from '@/components/ui/button'
 import {
   AlertDialog,
@@ -12,8 +14,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { TriangleAlertIcon } from 'lucide-react'
-import { useState } from 'react'
 
 interface IAppButton extends ButtonProps {
   tooltip?: string

@@ -4,6 +4,8 @@ import { PencilIcon, Trash2Icon } from 'lucide-react'
 import { useVocabularyStore } from '@/store/vocabularyStore'
 import { AppButton } from '@/components/AppButton'
 import VocabularyDialogForm from './VocabularyDialogForm'
+import { keyValueTemplate } from '@/lib/utils'
+import { levels } from '@/db/constData/levels'
 
 export default function VocabularyPage() {
   const { vocabularies, isLoading, fetchVocabularies, deleteVocabulary, openDialog } = useVocabularyStore()
@@ -31,9 +33,9 @@ export default function VocabularyPage() {
                 <p>{vocab.translation}</p>
                 <p className='italic'>{vocab.example}</p>
                 <p className='text-sm text-gray-400'>{vocab.exampleTranslation}</p>
-                <span className='text-blue-600'>Level: {vocab.level}</span>
+                <span className='text-blue-600'>Level: {keyValueTemplate(vocab, 'level', levels)}</span>
                 <div className='flex w-full justify-between'>
-                  <AppButton onClick={() => openDialog(true, vocab._id)} size='icon'>
+                  <AppButton onClick={() => openDialog(true, vocab._id)} size='icon' tooltip='Edit'>
                     <PencilIcon />
                   </AppButton>
                   <AppButton

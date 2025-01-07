@@ -16,6 +16,8 @@ import { z } from 'zod'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { formSchema, useVocabularyStore } from '@/store/vocabularyStore'
+import { AppCombobox } from '@/components/AppCombobox'
+import { levels } from '@/db/constData/levels'
 
 interface IVocabularyForm {}
 
@@ -117,7 +119,7 @@ export default function VocabularyDialogForm({}: IVocabularyForm) {
                 <FormItem>
                   <FormLabel>Level</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <AppCombobox {...field} options={levels} className='w-[200px]' placeholder='Select level...' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
