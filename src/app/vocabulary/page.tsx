@@ -6,6 +6,7 @@ import { AppButton } from '@/components/AppButton'
 import VocabularyDialogForm from './VocabularyDialogForm'
 import { keyValueTemplate } from '@/lib/utils'
 import { levels } from '@/db/constData/levels'
+import AppDataTable, { Column } from '@/components/AppDataTable'
 
 export default function VocabularyPage() {
   const { vocabularies, isLoading, fetchVocabularies, deleteVocabulary, openDialog } = useVocabularyStore()
@@ -25,6 +26,7 @@ export default function VocabularyPage() {
         ) : !vocabularies || vocabularies.length === 0 ? (
           <p>No vocabulary found.</p>
         ) : (
+          /*
           <div className='mx-auto flex flex-row flex-wrap gap-4'>
             {vocabularies.map((vocab) => (
               <div key={vocab._id} className='col-span-1 h-fit w-52 rounded-lg border bg-gray-100 p-4 shadow-xl'>
@@ -52,6 +54,11 @@ export default function VocabularyPage() {
               </div>
             ))}
           </div>
+          */
+          <AppDataTable data={vocabularies}>
+            <Column field='word' title='Word' sortable />
+            <Column field='level' title='Level' sortable />
+          </AppDataTable>
         )}
       </div>
     </main>
