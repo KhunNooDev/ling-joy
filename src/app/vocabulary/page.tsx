@@ -21,12 +21,11 @@ export default function VocabularyPage() {
       <h1 className='mb-4 text-2xl font-bold'>Vocabulary List</h1>
       <AppButton onClick={() => openDialog()}>New</AppButton>
       <div className='p-3'>
-        {isLoading ? (
+        {/* {isLoading ? (
           <p>Loading...</p>
         ) : !vocabularies || vocabularies.length === 0 ? (
           <p>No vocabulary found.</p>
         ) : (
-          /*
           <div className='mx-auto flex flex-row flex-wrap gap-4'>
             {vocabularies.map((vocab) => (
               <div key={vocab._id} className='col-span-1 h-fit w-52 rounded-lg border bg-gray-100 p-4 shadow-xl'>
@@ -54,12 +53,16 @@ export default function VocabularyPage() {
               </div>
             ))}
           </div>
-          */
-          <AppDataTable data={vocabularies}>
-            <Column field='word' title='Word' sortable />
-            <Column field='level' title='Level' sortable />
-          </AppDataTable>
-        )}
+        )} */}
+
+        <AppDataTable data={vocabularies} onEdit={(rowData) => openDialog(true, rowData._id)}>
+          <Column field='word' title='Word' sortable />
+          <Column field='pronunciation' title='Pronunciation' sortable />
+          <Column field='translation' title='Translation' sortable />
+          <Column field='example' title='Example' sortable />
+          <Column field='exampleTranslation' title='ExampleTranslation' sortable size={500} />
+          <Column field='level' title='Level' sortable useKeyValue={levels} />
+        </AppDataTable>
       </div>
     </main>
   )
