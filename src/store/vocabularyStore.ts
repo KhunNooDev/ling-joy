@@ -10,6 +10,7 @@ import {
 import { IVocabulary } from '@/db/models/vocabulary.model'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { getCategoryOptions } from '@/db/actions/category.action'
 
 export const formSchema = z.object({
   word: z.string().min(1, {
@@ -30,6 +31,7 @@ export const formSchema = z.object({
   level: z.string().min(1, {
     message: 'Level is required.',
   }),
+  category: z.string(),
 })
 
 export const defaultValues = {
@@ -39,10 +41,15 @@ export const defaultValues = {
   example: '',
   exampleTranslation: '',
   level: '',
+  category: '',
 }
 
 interface VocabularyState {
   vocabularies: IVocabulary[]
+  categories: {
+    value: string
+    label: string
+  }[]
   isLoading: boolean
   fetchVocabularies: () => Promise<void>
   updateVocabulary: (data: z.infer<typeof formSchema>) => Promise<void>
@@ -60,12 +67,14 @@ export const useVocabularyStore = create<VocabularyState>()(
   persist(
     (set, get) => ({
       vocabularies: [],
+      categories: [], //options
       isLoading: true,
       fetchVocabularies: async () => {
         set({ isLoading: true, isDialogOpen: false })
         try {
           const data = await getVocabularies()
-          set({ vocabularies: data })
+          const categories = await getCategoryOptions()
+          set({ vocabularies: data, categories })
         } catch (error) {
           console.error('Error fetching vocabularies:', error)
         } finally {

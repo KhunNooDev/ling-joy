@@ -14,14 +14,14 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import _ from 'lodash'
 
-interface IAppButton extends ButtonProps {
+export interface IAppButton extends ButtonProps {
   tooltip?: string
-  isConfirm?: boolean
-  alertText?: string
+  isConfirm?: string | boolean
 }
 
-export function AppButton({ tooltip, isConfirm, alertText, children, onClick, ...props }: IAppButton) {
+export function AppButton({ tooltip, isConfirm, children, onClick, ...props }: IAppButton) {
   const [isADgShow, setIsADgShow] = useState(false)
   return (
     <TooltipProvider delayDuration={100}>
@@ -29,7 +29,7 @@ export function AppButton({ tooltip, isConfirm, alertText, children, onClick, ..
         <TooltipTrigger asChild>
           <Button
             onClick={(e) => {
-              isConfirm ? setIsADgShow(true) : onClick && onClick(e)
+              !!isConfirm ? setIsADgShow(true) : onClick && onClick(e)
             }}
             {...props}
           >
@@ -42,7 +42,7 @@ export function AppButton({ tooltip, isConfirm, alertText, children, onClick, ..
           </TooltipContent>
         )}
       </Tooltip>
-      {isConfirm && (
+      {!!isConfirm && (
         <AlertDialog open={isADgShow} onOpenChange={setIsADgShow}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -52,7 +52,7 @@ export function AppButton({ tooltip, isConfirm, alertText, children, onClick, ..
               </AlertDialogTitle>
               <AlertDialogDescription></AlertDialogDescription>
             </AlertDialogHeader>
-            {alertText ? alertText : 'Are you sure?'}
+            {_.isString(isConfirm) ? isConfirm : 'Are you sure?'}
             <AlertDialogFooter>
               <AlertDialogCancel>No</AlertDialogCancel>
               <Button variant='destructive' onClick={onClick} asChild>

@@ -8,6 +8,7 @@ export interface IVocabulary {
   example: string
   exampleTranslation: string
   level: string
+  category: string
 }
 
 interface Vocabulary extends IVocabulary, Document {
@@ -22,6 +23,7 @@ const VocabularySchema = new Schema<Vocabulary>(
     example: { type: String, required: true },
     exampleTranslation: { type: String, required: true },
     level: { type: String, required: true },
+    category: { type: String, required: false },
   },
   {
     timestamps: true,

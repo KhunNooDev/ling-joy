@@ -11,6 +11,17 @@ export async function getCategories() {
   return categories
 }
 
+/** Get all category options */
+export async function getCategoryOptions() {
+  await dbConnect()
+  const categories = await CategoryModel.find({})
+  // const categories = convertMongoObjectIdToString<ICategory[]>(data)
+  return categories.map((category) => ({
+    value: category._id.toString(),
+    label: category.name,
+  }))
+}
+
 /** Get category by id */
 export async function getCategoryById(id: string) {
   await dbConnect()

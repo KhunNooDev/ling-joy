@@ -1,5 +1,5 @@
 'use client'
-import { Children, isValidElement, useMemo, useState } from 'react'
+import { Children, isValidElement, useState } from 'react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -41,79 +41,19 @@ import {
   PencilIcon,
 } from 'lucide-react'
 import { cn, keyValueTemplate } from '@/lib/utils'
+import { AppButton, IAppButton } from './AppButton'
 
 interface IAppDataTable<T> {
   data: T[]
   children: React.ReactNode //only name "Column"
-  onEdit?: (rowData: T) => void
-  onDelete?: (rowData: T) => void
+  noSelectRow?: boolean
+  actions?: (Omit<IAppButton, 'onClick'> & {
+    icon?: React.ReactNode
+    onClick: (rowData: T) => void
+  })[]
 }
 
-export default function AppDataTable<T>({ data, children, onEdit, onDelete }: IAppDataTable<T>) {
-  // Default columns
-  const defaultColumns: ColumnDef<T>[] = [
-    {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label='Select all'
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label='Select row'
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      enableResizing: false,
-      size: 36,
-      minSize: 36,
-      maxSize: 36,
-    },
-    {
-      id: 'actions',
-      cell: ({ row }) => {
-        const rowData = row.original
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant='ghost' className='h-8 w-8 p-0'>
-                <span className='sr-only'>Open menu</span>
-                <MoreHorizontalIcon className='h-4 w-4' />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-              {/* <DropdownMenuItem onClick={() => navigator.clipboard.writeText((rowData as any)['_id'])}>
-                Copy user ID
-              </DropdownMenuItem> */}
-              {(onEdit || onDelete) && (
-                <>
-                  <DropdownMenuSeparator />
-                  {onEdit && (
-                    <DropdownMenuItem onClick={() => onEdit(rowData)}>
-                      <PencilIcon /> Edit
-                    </DropdownMenuItem>
-                  )}
-                  {onDelete && <DropdownMenuItem onClick={() => onDelete(rowData)}>Delete</DropdownMenuItem>}
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
-      },
-      enableResizing: false,
-      size: 26,
-      minSize: 26,
-      maxSize: 26,
-    },
-  ]
-
+export default function AppDataTable<T>({ data, children, noSelectRow, actions }: IAppDataTable<T>) {
   // Map Column children to columns
   const childColumns: ColumnDef<T>[] = Children.toArray(children).flatMap((child) => {
     if (isValidElement(child) && (child.type as any).displayName === 'Column') {
@@ -143,11 +83,11 @@ export default function AppDataTable<T>({ data, children, onEdit, onDelete }: IA
                 >
                   <span>{title}</span>
                   {column.getIsSorted() === 'desc' ? (
-                    <ArrowDownIcon className='h-4 w-4' />
+                    <ArrowDownIcon />
                   ) : column.getIsSorted() === 'asc' ? (
-                    <ArrowUpIcon className='h-4 w-4' />
+                    <ArrowUpIcon />
                   ) : (
-                    <ArrowUpDownIcon className='h-4 w-4' />
+                    <ArrowUpDownIcon />
                   )}
                 </Button>
               </>
@@ -175,7 +115,54 @@ export default function AppDataTable<T>({ data, children, onEdit, onDelete }: IA
     return []
   })
 
-  const columns: ColumnDef<T>[] = [...defaultColumns, ...childColumns]
+  const columns: ColumnDef<T>[] = []
+  if (!noSelectRow) {
+    columns.push({
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label='Select all'
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label='Select row'
+        />
+      ),
+      // enableSorting: false,
+      // enableHiding: false,
+      enableResizing: false,
+      size: 32,
+      // minSize: 36,
+      // maxSize: 36,
+    })
+  }
+
+  if (actions) {
+    columns.push({
+      id: 'actions',
+      cell: ({ row }) => {
+        const rowData = row.original
+        return (
+          <div className='flex gap-2'>
+            {actions?.map(({ icon, onClick, ...buttonProps }, idx) => (
+              <AppButton key={idx} onClick={() => onClick(rowData)} size='iconSm' {...buttonProps}>
+                {icon}
+              </AppButton>
+            ))}
+          </div>
+        )
+      },
+      enableResizing: false,
+      size: actions.length * 27 + (actions.length - 1) * 8 + 16, // Calculate total width: (number of buttons * button width) + (number of gaps between buttons) + (padding)
+    })
+  }
+
+  columns.push(...childColumns)
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -185,11 +172,11 @@ export default function AppDataTable<T>({ data, children, onEdit, onDelete }: IA
   const table = useReactTable({
     data,
     columns,
-    // defaultColumn: {
-    //   size: 200,
-    //   minSize: 100,
-    //   // maxSize: 500,
-    // },
+    defaultColumn: {
+      minSize: 0,
+      size: Number.MAX_SAFE_INTEGER,
+      maxSize: Number.MAX_SAFE_INTEGER,
+    },
     columnResizeMode: 'onChange',
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -207,26 +194,9 @@ export default function AppDataTable<T>({ data, children, onEdit, onDelete }: IA
     },
   })
 
-  /**
-   * Instead of calling `column.getSize()` on every render for every header
-   * and especially every data cell (very expensive),
-   * we will calculate all column sizes at once at the root table level in a useMemo
-   * and pass the column sizes down as CSS variables to the <table> element.
-   */
-  const columnSizeVars = useMemo(() => {
-    const headers = table.getFlatHeaders()
-    const colSizes: { [key: string]: number } = {}
-    for (let i = 0; i < headers.length; i++) {
-      const header = headers[i]!
-      colSizes[`--header-${header.id}-size`] = header.getSize()
-      colSizes[`--col-${header.column.id}-size`] = header.column.getSize()
-    }
-    return colSizes
-  }, [table.getState().columnSizingInfo, table.getState().columnSizing])
-
   return (
     <div>
-      <pre style={{ minHeight: '10rem' }}>
+      {/* <pre style={{ minHeight: '10rem' }}>
         {JSON.stringify(
           {
             columnSizing: table.getState().columnSizing,
@@ -235,7 +205,7 @@ export default function AppDataTable<T>({ data, children, onEdit, onDelete }: IA
           null,
           2,
         )}
-      </pre>
+      </pre> */}
       <div className='flex items-center gap-2 py-4'>
         {/* <Input
           placeholder='Filter emails...'
@@ -248,7 +218,7 @@ export default function AppDataTable<T>({ data, children, onEdit, onDelete }: IA
       <div>
         <TableProvider
           style={{
-            ...columnSizeVars, //Define column sizes on the <table> element
+            // ...columnSizeVars, //Define column sizes on the <table> element
             width: table.getTotalSize(),
             // width: '100%',
           }}
@@ -261,8 +231,8 @@ export default function AppDataTable<T>({ data, children, onEdit, onDelete }: IA
                     <TableHead
                       key={header.id}
                       style={{
-                        width: `calc(var(--header-${header?.id}-size) * 1px)`,
-                        maxWidth: '100px',
+                        width: header.getSize() === Number.MAX_SAFE_INTEGER ? 'auto' : header.getSize(),
+                        maxWidth: header.column.columnDef.size,
                         whiteSpace: 'nowrap',
                         overflow: 'auto',
                       }}
@@ -291,8 +261,8 @@ export default function AppDataTable<T>({ data, children, onEdit, onDelete }: IA
                     <TableCell
                       key={cell.id}
                       style={{
-                        width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
-                        maxWidth: '100px',
+                        width: cell.column.getSize() === Number.MAX_SAFE_INTEGER ? 'auto' : cell.column.getSize(),
+                        maxWidth: cell.column.columnDef.size,
                         whiteSpace: 'nowrap',
                         overflow: 'auto',
                       }}

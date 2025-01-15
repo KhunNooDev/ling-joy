@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -18,11 +17,12 @@ import { Input } from '@/components/ui/input'
 import { formSchema, useVocabularyStore } from '@/store/vocabularyStore'
 import { AppCombobox } from '@/components/AppCombobox'
 import { levels } from '@/db/constData/levels'
+import { AppButton } from '@/components/AppButton'
 
 interface IVocabularyForm {}
 
 export default function VocabularyDialogForm({}: IVocabularyForm) {
-  const { isDialogOpen, setIsDialogOpen, isEdit, entityVocabulary, updateVocabulary } = useVocabularyStore()
+  const { isDialogOpen, setIsDialogOpen, isEdit, entityVocabulary, updateVocabulary, categories } = useVocabularyStore()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -112,32 +112,47 @@ export default function VocabularyDialogForm({}: IVocabularyForm) {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name='level'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Level</FormLabel>
-                  <FormControl>
-                    <AppCombobox {...field} options={levels} className='w-[200px]' placeholder='Select level...' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className='flex w-full gap-2'>
+              <FormField
+                control={form.control}
+                name='level'
+                render={({ field }) => (
+                  <FormItem className='w-1/2'>
+                    <FormLabel>Level</FormLabel>
+                    <FormControl>
+                      <AppCombobox {...field} options={levels} placeholder='Select level...' />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='category'
+                render={({ field }) => (
+                  <FormItem className='w-1/2'>
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <AppCombobox {...field} options={categories} placeholder='Select category...' />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </form>
         </Form>
         <DialogFooter className='flex-row !justify-between'>
-          <Button variant='secondary' onClick={() => form.reset(entityVocabulary)}>
+          <AppButton variant='secondary' onClick={() => form.reset(entityVocabulary)}>
             Reset
-          </Button>
+          </AppButton>
           <div className='flex gap-4'>
             <DialogClose asChild>
-              <Button variant='destructive'>Cancel</Button>
+              <AppButton variant='destructive'>Cancel</AppButton>
             </DialogClose>
-            <Button form='vocabularyForm' type='submit'>
+            <AppButton form='vocabularyForm' type='submit'>
               {isEdit ? 'Update' : 'Submit'}
-            </Button>
+            </AppButton>
           </div>
         </DialogFooter>
       </DialogContent>
