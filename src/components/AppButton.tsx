@@ -1,5 +1,7 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import _ from 'lodash'
 import { TriangleAlertIcon } from 'lucide-react'
 import { Button, ButtonProps } from '@/components/ui/button'
 import {
@@ -14,7 +16,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import _ from 'lodash'
+import { signOut } from 'next-auth/react'
 
 export interface IAppButton extends ButtonProps {
   tooltip?: string
@@ -28,6 +30,7 @@ export function AppButton({ tooltip, isConfirm, children, onClick, ...props }: I
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
+            type='button'
             onClick={(e) => {
               !!isConfirm ? setIsADgShow(true) : onClick && onClick(e)
             }}
@@ -63,5 +66,26 @@ export function AppButton({ tooltip, isConfirm, children, onClick, ...props }: I
         </AlertDialog>
       )}
     </TooltipProvider>
+  )
+}
+
+export function AppButtonToPath({ href, text, className }: { href: string; text: string; className?: string }) {
+  const router = useRouter()
+  return (
+    <AppButton onClick={() => router.push(href)} className={className}>
+      {text}
+    </AppButton>
+  )
+}
+
+export function AppButtonLogin() {
+  return <AppButtonToPath href='/auth' text='Login' />
+}
+
+export function AppButtonLogout() {
+  return (
+    <AppButton onClick={() => signOut({ callbackUrl: '/auth', redirect: true })} variant='destructive'>
+      Logout
+    </AppButton>
   )
 }
