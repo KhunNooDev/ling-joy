@@ -1,6 +1,5 @@
 'use server'
 import dbConnect from '@/lib/dbConnect'
-import { MongoServerError } from 'mongodb'
 import VocabularyModel, { IVocabulary } from '@/db/models/vocabulary.model'
 import { convertMongoObjectIdToString, handleMongoError, trimString } from '@/db/utils'
 
@@ -16,6 +15,16 @@ export async function getVocabularies() {
 export async function getVocabularyById(id: string) {
   await dbConnect()
   const data = await VocabularyModel.findById(id)
+  const vocab = convertMongoObjectIdToString<IVocabulary>(data)
+  return vocab
+}
+
+/** Get vocabulary by word */
+export async function getVocabularyByWord(word: string) {
+  await dbConnect()
+  const data = await VocabularyModel.findOne({
+    word: { $regex: new RegExp(`^${word}$`, 'i') },
+  })
   const vocab = convertMongoObjectIdToString<IVocabulary>(data)
   return vocab
 }

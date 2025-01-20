@@ -7,15 +7,15 @@ import { Button } from '@/components/ui/button'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
-interface IAppCombobox {
-  value: string
+export interface IAppCombobox {
+  value?: string
   options: {
     value: string
     label: string
   }[]
   placeholder?: string
   className?: string
-  onChange: (value: string) => void
+  onChange?: (value: string) => void
 }
 
 export function AppCombobox({ value, options, placeholder, className, onChange }: IAppCombobox) {
@@ -51,7 +51,7 @@ export function AppCombobox({ value, options, placeholder, className, onChange }
                   key={opt.value}
                   value={opt.value}
                   onSelect={(currentValue) => {
-                    onChange(currentValue === value ? '' : currentValue)
+                    if (onChange) onChange(currentValue === value ? '' : currentValue)
                     setOpen(false)
                   }}
                 >

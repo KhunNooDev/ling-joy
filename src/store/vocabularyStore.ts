@@ -5,14 +5,16 @@ import {
   deleteVocabulary,
   getVocabularies,
   getVocabularyById,
+  getVocabularyByWord,
   updateVocabulary,
 } from '@/db/actions/vocabulary.action'
 import { IVocabulary } from '@/db/models/vocabulary.model'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { getCategoryOptions } from '@/db/actions/category.action'
+import { appAlertDialog } from './useAlertDialogStore'
 
-export const formSchema = z.object({
+export const vocabularySchema = z.object({
   word: z.string().min(1, {
     message: 'Word is required.',
   }),
@@ -33,6 +35,7 @@ export const formSchema = z.object({
   }),
   category: z.string(),
 })
+export type VocabularySchemaType = z.infer<typeof vocabularySchema>
 
 export const defaultValues = {
   word: '',
@@ -52,13 +55,13 @@ interface VocabularyState {
   }[]
   isLoading: boolean
   fetchVocabularies: () => Promise<void>
-  updateVocabulary: (data: z.infer<typeof formSchema>) => Promise<void>
+  updateVocabulary: (data: VocabularySchemaType) => Promise<boolean>
   deleteVocabulary: (id: string) => Promise<void>
 
   isDialogOpen: boolean
   pkId?: string
   isEdit: boolean
-  entityVocabulary: z.infer<typeof formSchema>
+  entityVocabulary: VocabularySchemaType
   setIsDialogOpen: (isOpen: boolean) => void
   openDialog: (isEdit?: boolean, pkId?: string) => Promise<void>
 }
@@ -93,12 +96,32 @@ export const useVocabularyStore = create<VocabularyState>()(
               ? state.vocabularies.map((vocab) => (vocab._id === pkId ? newVocabulary : vocab))
               : [...state.vocabularies, newVocabulary],
           }))
+          return true
         } catch (error) {
           if (error instanceof Error) {
-            toast.error(`Failed to update vocabulary: ${error.message}`)
+            const errorCodeMatch = error.message.match(/error code: (\d+) - (.+)/)
+            const errorCode = errorCodeMatch ? errorCodeMatch[1] : 'Unknown'
+            const errorMessage = errorCodeMatch ? errorCodeMatch[2] : 'Unknown error'
+            if (errorCode === '11000') {
+              appAlertDialog({
+                alertType: 'warning',
+                title: 'Duplicate entry',
+                description: `Failed to update vocabulary: ${errorMessage}\nDo you want to open the existing vocabulary? This data will be lost.`,
+                onClick: async () => {
+                  // Open the existing vocabulary
+                  const existingVocabulary = await getVocabularyByWord(values.word)
+                  if (existingVocabulary) {
+                    get().openDialog(true, existingVocabulary._id)
+                  }
+                },
+              })
+            } else {
+              toast.error(`Failed to update vocabulary: ${error.message}`)
+            }
           } else {
             toast.error('Failed to update vocabulary.')
           }
+          return false
         }
       },
       deleteVocabulary: async (id) => {

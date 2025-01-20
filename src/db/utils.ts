@@ -40,7 +40,9 @@ export function handleMongoError(error: unknown) {
   if (error instanceof MongoServerError) {
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0]
-      return `${field} already exists`
+      const value = error.keyValue[field]
+
+      return `error code: ${error.code} - ${field} with value ${value} already exists`
     }
   }
   return 'An unexpected error occurred.'
