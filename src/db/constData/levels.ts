@@ -1,18 +1,26 @@
 export const levels = [
   {
     value: 'beginner',
-    label: 'Beginner',
+    label: 'Beginner (A1)',
+  },
+  {
+    value: 'elementary',
+    label: 'Elementary (A2)',
   },
   {
     value: 'intermediate',
-    label: 'Intermediate',
+    label: 'Intermediate (B1)',
+  },
+  {
+    value: 'upper-intermediate',
+    label: 'Upper Intermediate (B2)',
   },
   {
     value: 'advanced',
-    label: 'Advanced',
+    label: 'Advanced (C1)',
   },
   {
-    value: 'expert',
-    label: 'Expert',
+    value: 'proficient',
+    label: 'Proficient (C2)',
   },
 ]

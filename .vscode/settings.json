@@ -1,7 +1,7 @@
 {
   "css.lint.unknownAtRules": "ignore",
   "scss.lint.unknownAtRules": "ignore",
-  "editor.snippetSuggestions": "top",
+  // "editor.snippetSuggestions": "top",
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,

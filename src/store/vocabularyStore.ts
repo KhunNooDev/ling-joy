@@ -55,7 +55,7 @@ interface VocabularyState {
   }[]
   isLoading: boolean
   fetchVocabularies: () => Promise<void>
-  updateVocabulary: (data: VocabularySchemaType) => Promise<boolean>
+  saveVocabulary: (data: VocabularySchemaType) => Promise<boolean>
   deleteVocabulary: (id: string) => Promise<void>
 
   isDialogOpen: boolean
@@ -84,7 +84,7 @@ export const useVocabularyStore = create<VocabularyState>()(
           set({ isLoading: false })
         }
       },
-      updateVocabulary: async (values) => {
+      saveVocabulary: async (values) => {
         const { isEdit, pkId } = get()
         try {
           const newVocabulary = isEdit ? await updateVocabulary(pkId!, values) : await createVocabulary(values)

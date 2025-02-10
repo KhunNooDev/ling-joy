@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react'
 import { useVocabularyStore } from '@/store/vocabularyStore'
 import { levels } from '@/db/constData/levels'
 import { IVocabulary } from '@/db/models/vocabulary.model'
-import { ArrowLeftToLineIcon, ArrowRightToLineIcon, GaugeIcon } from 'lucide-react'
+import { ArrowLeftToLineIcon, ArrowRightToLineIcon, GaugeIcon, Volume2Icon } from 'lucide-react'
 import { AppButton } from '@/components/AppButton'
-import { cn, keyValueTemplate } from '@/lib/utils'
+import { cn, handleTTS, keyValueTemplate } from '@/lib/utils'
+import _ from 'lodash'
 
 export default function VocabularyPage() {
   const { vocabularies, isLoading, fetchVocabularies, categories } = useVocabularyStore()
@@ -16,16 +17,8 @@ export default function VocabularyPage() {
 
   const [showInfo, setShowInfo] = useState<{ [key: string]: boolean }>({})
 
-  const categorizedVocabularies: Record<string, IVocabulary[]> = vocabularies.reduce(
-    (acc: Record<string, IVocabulary[]>, vocab: IVocabulary) => {
-      const category = vocab.category ? keyValueTemplate(vocab, 'category', categories) : 'No category'
-      if (!acc[category]) {
-        acc[category] = []
-      }
-      acc[category].push(vocab)
-      return acc
-    },
-    {},
+  const categorizedVocabularies = _.groupBy(vocabularies, (vocab) =>
+    vocab.category ? keyValueTemplate(vocab, 'category', categories) : 'No category',
   )
 
   const toggleInfo = (id: string) => {
@@ -49,7 +42,7 @@ export default function VocabularyPage() {
                   {vocabList.map((vocab) => (
                     <div
                       key={vocab._id}
-                      className={cn('flex h-fit w-56 overflow-hidden rounded-lg border bg-gray-100 p-4 shadow-md')}
+                      className={cn('flex h-fit w-72 overflow-hidden rounded-lg border bg-gray-100 p-4 shadow-md')}
                     >
                       <div
                         className={cn(
@@ -59,12 +52,17 @@ export default function VocabularyPage() {
                             : 'h-full w-full translate-x-0 opacity-100',
                         )}
                       >
-                        <div className='w-10/12'>
-                          <h3 className='text-lg font-semibold'>{vocab.word}</h3>
-                          <p className='text-sm text-gray-500'>{vocab.pronunciation}</p>
-                          {/* <span className='flex gap-2 text-blue-600'>
-                            <GaugeIcon /> {keyValueTemplate(vocab, 'level', levels)}
-                          </span> */}
+                        <div className='flex w-10/12 flex-col gap-2'>
+                          <div className='flex items-baseline'>
+                            <h3 onClick={() => handleTTS(vocab.word)} className='cursor-pointer text-lg font-semibold'>
+                              {vocab.word}
+                            </h3>
+                          </div>
+                          <div className='flex items-baseline'>
+                            <p onClick={() => handleTTS(vocab.example)} className='cursor-pointer italic'>
+                              {vocab.example}
+                            </p>
+                          </div>
                         </div>
                         <div className='flex w-2/12 items-center justify-center'>
                           <AppButton onClick={() => toggleInfo(vocab._id)} size='icon' variant='ghost'>
@@ -85,10 +83,19 @@ export default function VocabularyPage() {
                             <ArrowLeftToLineIcon />
                           </AppButton>
                         </div>
-                        <div className='w-10/12'>
-                          <p>{vocab.translation}</p>
-                          <p className='italic'>{vocab.example}</p>
-                          <p className='text-sm text-gray-400'>{vocab.exampleTranslation}</p>
+                        <div className='flex w-10/12 flex-col gap-2'>
+                          <div className='flex items-baseline'>
+                            <h3 onClick={() => handleTTS(vocab.translation)} className='text-lg font-semibold'>
+                              {vocab.translation}
+                            </h3>
+                          </div>
+                          <div className='flex items-baseline'>
+                            <p className='italic'>{vocab.exampleTranslation}</p>
+                          </div>
+                          {/* <p className='text-sm text-gray-500'>{vocab.pronunciation}</p> */}
+                          {/* <span className='flex gap-2 text-blue-600'>
+                            <GaugeIcon /> {keyValueTemplate(vocab, 'level', levels)}
+                          </span> */}
                         </div>
                       </div>
                     </div>

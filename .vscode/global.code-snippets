@@ -1,0 +1,33 @@
+{
+  "Declare useState null": {
+    "prefix": "cns",
+    "body": ["const [${1:state}, set${1/(.)/${1:/capitalize}/}] = useState(${2:null});"],
+    "description": "const null default of useState",
+  },
+  "Debugger": {
+    "prefix": "dg",
+    "body": ["debugger;"],
+    "description": "debugger",
+  },
+  "ClassName": {
+    "prefix": "class",
+    "body": ["className='${1}'"],
+    "description": "className",
+  },
+  "Function": {
+    "prefix": "fcn",
+    "body": ["function"],
+    "description": "function",
+  },
+  "Debugger useEffect": {
+    "prefix": "dge",
+    "body": ["useEffect(() => {\n\tif(${1:data}) debugger;\n}, [${1:data}])"],
+    "description": "Debugger in useEffect",
+  },
+
+  "Print to console": {
+    "prefix": ["cl", "co", "con", "cons", "conso", "consol", "console", "console.l", "console.lo", "console.log"],
+    "body": ["console.log($1);"],
+    "description": "Log output to console",
+  },
+}

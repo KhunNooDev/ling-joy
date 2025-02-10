@@ -1,55 +1,53 @@
-import React, { useEffect } from 'react'
+'use client'
+import React, { forwardRef, useEffect, useImperativeHandle } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FormProvider, useForm, useFormContext } from 'react-hook-form'
+import { FormProvider, useForm, useFormContext, UseFormReset, UseFormReturn } from 'react-hook-form'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { AppCombobox, IAppCombobox } from './AppCombobox'
-import { AppButton } from './AppButton'
+import { AppCombobox, IAppCombobox } from '@/components/AppCombobox'
+import { AppButton } from '@/components/AppButton'
+import { cn } from '@/lib/utils'
 
-interface IAppForm {
+interface IAppForm extends Omit<React.FormHTMLAttributes<HTMLFormElement>, 'onSubmit'> {
   id?: string //add props form='nameForm' same id for used button outside the form.
   schema: z.ZodType<any>
-  onSubmit: (data: any, reset: () => void) => void
-  children: React.ReactNode
+  onSubmit: (data: any) => void
+  // children: React.ReactNode
   defaultValues?: Record<string, any>
 }
-export default function AppForm({ id, schema, onSubmit, children, defaultValues = {} }: IAppForm) {
+
+export default forwardRef(function AppForm(
+  { id, schema, onSubmit, defaultValues = {}, children, className, ...props }: IAppForm,
+  ref,
+) {
   const form = useForm({
     resolver: zodResolver(schema),
-    defaultValues: defaultValues,
+    defaultValues,
   })
 
   useEffect(() => {
     form.reset(defaultValues)
   }, [defaultValues, form])
 
+  const { handleSubmit, reset } = form
+
+  useImperativeHandle(ref, () => ({ reset }), [reset])
+
   return (
     <FormProvider {...form}>
       <form
         id={id}
         autoComplete='off'
-        onSubmit={form.handleSubmit((data) => onSubmit(data, form.reset))}
-        className='space-y-4'
+        onSubmit={handleSubmit(onSubmit)}
+        className={cn('space-y-4', className)}
+        {...props}
       >
         {children}
       </form>
     </FormProvider>
   )
-}
-
-export function AppFormResetButton({ defaultValues }: { defaultValues?: Record<string, any> }) {
-  const formContext = useFormContext()
-  if (!formContext) {
-    return null // or handle the error as needed
-  }
-  const { reset } = formContext
-  return (
-    <AppButton variant='secondary' onClick={() => reset(defaultValues)}>
-      Reset
-    </AppButton>
-  )
-}
+})
 
 interface IDefaultInput extends React.InputHTMLAttributes<HTMLInputElement> {
   field: string
