@@ -1,23 +1,14 @@
 'use client'
 import { useRef } from 'react'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { levels } from '@/db/constData/levels'
 import { AppButton } from '@/components/AppButton'
 import AppForm, { AppInputCombobox, AppInputText } from '@/components/AppForm'
 import { vocabularySchema, useVocabularyStore, VocabularySchemaType } from '@/store/vocabularyStore'
-import { AppDialog } from '@/components/AppDialog'
+import AppDialog from '@/components/AppDialog'
 
-interface IVocabularyForm {}
+interface IVocabularyDialogForm {}
 
-export default function VocabularyDialogForm({}: IVocabularyForm) {
+export default function VocabularyDialogForm({}: IVocabularyDialogForm) {
   const {
     isDialogOpen,
     setIsDialogOpen,
@@ -26,6 +17,7 @@ export default function VocabularyDialogForm({}: IVocabularyForm) {
     saveVocabulary: updateVocabulary,
     categories,
   } = useVocabularyStore()
+
   const formRef = useRef<{ reset: () => void }>(null)
 
   const onSubmit = async (values: VocabularySchemaType) => {
@@ -44,9 +36,9 @@ export default function VocabularyDialogForm({}: IVocabularyForm) {
         <>
           <AppButton onClick={() => formRef.current?.reset()}>Reset</AppButton>
           <div className='flex gap-4'>
-            <DialogClose asChild>
-              <AppButton variant='destructive'>Cancel</AppButton>
-            </DialogClose>
+            <AppButton variant='destructive' onClick={() => setIsDialogOpen(false)}>
+              Cancel
+            </AppButton>
             <AppButton form='vocabularyForm' type='submit'>
               {isEdit ? 'Update' : 'Submit'}
             </AppButton>
@@ -60,6 +52,7 @@ export default function VocabularyDialogForm({}: IVocabularyForm) {
         schema={vocabularySchema}
         defaultValues={entityVocabulary}
         onSubmit={onSubmit}
+        // readOnly
       >
         <AppInputText field='word' label='Word' disabled={isEdit} />
         <AppInputText field='pronunciation' label='Pronunciation' />

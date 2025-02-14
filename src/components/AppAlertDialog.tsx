@@ -1,6 +1,4 @@
 'use client'
-import { useEffect, useState } from 'react'
-import _ from 'lodash'
 import { TriangleAlertIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -23,7 +21,6 @@ interface IAppAlertDialog {
   onClick?: () => void
 }
 
-export type AppAlertDialogType = IAppAlertDialog
 export function AppAlertDialog(props: IAppAlertDialog) {
   const {
     isDialogOpen,
@@ -59,4 +56,9 @@ export function AppAlertDialog(props: IAppAlertDialog) {
       </AlertDialogContent>
     </AlertDialog>
   )
+}
+
+type AppAlertDialogType = IAppAlertDialog
+export function appAlertDialog({ alertType = 'confirm', title, description, onClick }: AppAlertDialogType) {
+  useAlertDialogStore.getState().openDialog(alertType, title, description, onClick)
 }

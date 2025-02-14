@@ -15,15 +15,17 @@ interface IAppForm extends Omit<React.FormHTMLAttributes<HTMLFormElement>, 'onSu
   onSubmit: (data: any) => void
   // children: React.ReactNode
   defaultValues?: Record<string, any>
+  readOnly?: boolean // Add readonly prop
 }
 
 export default forwardRef(function AppForm(
-  { id, schema, onSubmit, defaultValues = {}, children, className, ...props }: IAppForm,
+  { id, schema, onSubmit, defaultValues = {}, children, className, readOnly, ...props }: IAppForm,
   ref,
 ) {
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues,
+    disabled: readOnly === true ? true : undefined,
   })
 
   useEffect(() => {
@@ -66,7 +68,7 @@ export function AppInputText({ field, label, ...props }: IDefaultInput) {
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input {...field} {...props} />
+            <Input {...field} {...props} disabled={field.disabled || props.disabled} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -87,7 +89,7 @@ export function AppInputNumber({ field, label, ...props }: IDefaultInput) {
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input type='number' {...field} {...props} />
+            <Input type='number' {...field} {...props} disabled={field.disabled || props.disabled} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -108,7 +110,7 @@ export function AppInputPass({ field, label, ...props }: IDefaultInput) {
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input type='password' {...field} {...props} />
+            <Input type='password' {...field} {...props} disabled={field.disabled || props.disabled} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -133,7 +135,7 @@ export function AppInputCombobox({ field, label, className, ...props }: IAppInpu
         <FormItem className={className}>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <AppCombobox {...field} {...props} />
+            <AppCombobox {...field} {...props} disabled={field.disabled || props.disabled} />
           </FormControl>
           <FormMessage />
         </FormItem>

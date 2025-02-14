@@ -16,9 +16,10 @@ export interface IAppCombobox {
   placeholder?: string
   className?: string
   onChange?: (value: string) => void
+  disabled?: boolean
 }
 
-export function AppCombobox({ value, options, placeholder, className, onChange }: IAppCombobox) {
+export function AppCombobox({ value, options, placeholder, className, onChange, disabled }: IAppCombobox) {
   const [open, setOpen] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
@@ -35,6 +36,7 @@ export function AppCombobox({ value, options, placeholder, className, onChange }
             'placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
             className,
           )}
+          disabled={disabled}
         >
           {value ? options.find((opt) => opt.value === value)?.label : placeholder}
           <ChevronsUpDownIcon className='opacity-50' />

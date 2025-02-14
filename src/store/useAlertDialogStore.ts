@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { AppAlertDialogType } from '@/components/AppAlertDialog'
 
 // Define the state and actions for the alert dialog
 interface AlertDialogState {
@@ -28,7 +27,3 @@ export const useAlertDialogStore = create<AlertDialogState>((set) => ({
     set({ isDialogOpen: true, alertType, title, description, onClick }),
   closeDialog: () => set({ isDialogOpen: false, alertType: null, title: null, description: null, onClick: null }),
 }))
-
-export function appAlertDialog({ alertType = 'confirm', title, description, onClick }: AppAlertDialogType) {
-  useAlertDialogStore.getState().openDialog(alertType, title, description, onClick)
-}

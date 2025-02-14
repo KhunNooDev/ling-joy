@@ -12,7 +12,7 @@ import { IVocabulary } from '@/db/models/vocabulary.model'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { getCategoryOptions } from '@/db/actions/category.action'
-import { appAlertDialog } from './useAlertDialogStore'
+import { appAlertDialog } from '@/components/AppAlertDialog'
 
 export const vocabularySchema = z.object({
   word: z.string().min(1, {

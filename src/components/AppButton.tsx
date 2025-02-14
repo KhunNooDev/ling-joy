@@ -17,13 +17,14 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { signOut } from 'next-auth/react'
+import { cn } from '@/lib/utils'
 
 export interface IAppButton extends ButtonProps {
   tooltip?: string
   isConfirm?: string | boolean
 }
 
-export function AppButton({ tooltip, isConfirm, children, onClick, ...props }: IAppButton) {
+export function AppButton({ tooltip, isConfirm, children, onClick, className, ...props }: IAppButton) {
   const [isADgShow, setIsADgShow] = useState(false)
   return (
     <TooltipProvider delayDuration={100}>
@@ -32,8 +33,9 @@ export function AppButton({ tooltip, isConfirm, children, onClick, ...props }: I
           <Button
             type='button'
             onClick={(e) => {
-              !!isConfirm ? setIsADgShow(true) : onClick && onClick(e)
+              !!isConfirm ? setIsADgShow(true) : onClick?.(e)
             }}
+            className={cn('select-none', className)}
             {...props}
           >
             {children}
